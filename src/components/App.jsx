@@ -44,10 +44,6 @@ export class App extends React.Component {
     }
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
-  }
-
   handleScroll = () => {
     const { isLoading, images, search, pageNumber } = this.state;
 
@@ -90,7 +86,9 @@ export class App extends React.Component {
         <Searchbar onSubmit={this.onSearch} />
         <ImageGallery openModal={this.openModal} images={images} />
         {isLoading && <Loader />}
-        {showLoadMore && <Button fetchImages={this.handleScroll} />}
+        {images.length > 0 && !isLoading && (
+          <Button fetchImages={this.handleScroll} />
+        )}
         {isModalOpen && (
           <Modal
             largeImageId={largeImageId}

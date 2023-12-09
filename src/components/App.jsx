@@ -79,7 +79,6 @@ export class App extends React.Component {
 
   render() {
     const { isLoading, images, isModalOpen, largeImageId } = this.state;
-    const showLoadMore = images.length > 0 && !isLoading;
 
     return (
       <StyledContainer>

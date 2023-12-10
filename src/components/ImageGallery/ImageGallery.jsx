@@ -6,8 +6,8 @@ import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 export const ImageGallery = ({ images, openModal }) => {
   return (
     <StyledImageGallery>
-      {images.map(image => (
-        <ImageGalleryItem openModal={openModal} key={image.id} image={image} />
+      {images.map((image, index) => (
+        <ImageGalleryItem openModal={openModal} key={index} image={image} />
       ))}
     </StyledImageGallery>
   );

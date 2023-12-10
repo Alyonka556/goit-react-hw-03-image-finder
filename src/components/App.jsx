@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchImages } from './services/pixabay-api.js';
+import { fetchImages } from '../services/pixabay-api';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader.jsx';
@@ -27,16 +27,22 @@ export class App extends React.Component {
 
   fetchImages = async (userInput, page) => {
     try {
+      this.setState({ isLoading: true });
       const imagesData = await fetchImages(userInput, page);
-      this.setState({ images: imagesData.hits, isLoading: false });
+      this.setState(prevState => ({
+        images: [...prevState.images, ...imagesData.hits],
+        isLoading: false,
+      }));
     } catch (error) {
       console.error('Error fetching images:', error);
       this.setState({ error: 'Failed to fetch images', isLoading: false });
     }
   };
+
   componentDidMount() {
     window.addEventListener('scroll', this.handleScroll);
   }
+
   componentDidUpdate(prevProps, prevState) {
     window.removeEventListener('scroll', this.handleScroll);
     if (prevState.search !== this.state.search) {
@@ -44,22 +50,21 @@ export class App extends React.Component {
     }
   }
 
-  handleScroll = () => {
-    const { isLoading, images, search, pageNumber } = this.state;
-
-    if (
-      window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight &&
-      !isLoading &&
-      images.length > 0
-    ) {
-      const nextPage = pageNumber + 1;
-      this.fetchImages(search, nextPage);
-    }
+  loadMoreImages = () => {
+    const nextPage = this.state.pageNumber + 1;
+    this.fetchImages(this.state.search, nextPage);
   };
 
   onSearch = search => {
     this.setState({ search, images: [], pageNumber: 1 });
+  };
+
+  openModal = (url, largeImageId) => {
+    this.setState({
+      isModalOpen: true,
+      largeImageId: Number(largeImageId),
+      imageUrl: url,
+    });
   };
 
   findImage = () => {
@@ -69,12 +74,6 @@ export class App extends React.Component {
     return largeImg;
   };
 
-  openModal = e => {
-    this.setState({
-      isModalOpen: true,
-      largeImageId: Number(e.currentTarget.id),
-    });
-  };
   closeModal = () => this.setState({ isModalOpen: false });
 
   render() {
@@ -86,7 +85,7 @@ export class App extends React.Component {
         <ImageGallery openModal={this.openModal} images={images} />
         {isLoading && <Loader />}
         {images.length > 0 && !isLoading && (
-          <Button fetchImages={this.handleScroll} />
+          <Button loadMoreImages={this.loadMoreImages} />
         )}
         {isModalOpen && (
           <Modal

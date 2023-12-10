@@ -6,10 +6,14 @@ import {
 } from './ImageGalleryItem.styled.js';
 
 export const ImageGalleryItem = ({ image, openModal }) => {
-  const { webformatURL, tags } = image;
+  const { webformatURL, tags, id } = image;
+
+  const handleImageClick = () => {
+    openModal(webformatURL, id);
+  };
 
   return (
-    <StyledImageGalleryItem id={image.id} onClick={openModal}>
+    <StyledImageGalleryItem onClick={handleImageClick}>
       <StyledImageGalleryItemImg src={webformatURL} alt={tags} />
     </StyledImageGalleryItem>
   );

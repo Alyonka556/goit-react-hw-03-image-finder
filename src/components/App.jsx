@@ -68,17 +68,6 @@ export class App extends React.Component {
     this.setState({ pageNumber: nextPage });
   };
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (prevState.search !== this.state.search) {
-  //     this.fetchImages(this.state.search, this.state.pageNumber);
-  //   }
-  // }
-
-  // loadMoreImages = () => {
-  //   const nextPage = this.state.pageNumber + 1;
-  //   this.setState({ pageNumber: nextPage });
-  // };
-
   onSearch = search => {
     this.setState({ search, images: [], pageNumber: 1 });
   };

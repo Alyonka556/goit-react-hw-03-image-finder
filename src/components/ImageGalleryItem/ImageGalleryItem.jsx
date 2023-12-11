@@ -6,10 +6,10 @@ import {
 } from './ImageGalleryItem.styled.js';
 
 export const ImageGalleryItem = ({ image, openModal }) => {
-  const { webformatURL, tags, id } = image;
+  const { webformatURL, largeImageURL, tags } = image;
 
   const handleImageClick = () => {
-    openModal(webformatURL, id);
+    openModal(largeImageURL);
   };
 
   return (

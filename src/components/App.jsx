@@ -22,17 +22,28 @@ export class App extends React.Component {
     isLoading: false,
     isModalOpen: false,
     largeImageId: null,
-    largeImage: [],
+    largeImage: null,
   };
 
   fetchImages = async (userInput, page) => {
     try {
       this.setState({ isLoading: true });
       const imagesData = await fetchImages(userInput, page);
-      this.setState(prevState => ({
-        images: [...prevState.images, ...imagesData.hits],
-        isLoading: false,
-      }));
+      const uniqueNewImages = imagesData.hits.filter(
+        image =>
+          !this.state.images.some(
+            existingImage => existingImage.id === image.id
+          )
+      );
+
+      if (uniqueNewImages.length > 0) {
+        this.setState(prevState => ({
+          images: [...prevState.images, ...uniqueNewImages],
+          isLoading: false,
+        }));
+      } else {
+        this.setState({ isLoading: false });
+      }
     } catch (error) {
       console.error('Error fetching images:', error);
       this.setState({ error: 'Failed to fetch images', isLoading: false });
@@ -44,62 +55,54 @@ export class App extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    window.removeEventListener('scroll', this.handleScroll);
-    if (prevState.search !== this.state.search) {
+    if (
+      prevState.search !== this.state.search ||
+      prevState.pageNumber !== this.state.pageNumber
+    ) {
       this.fetchImages(this.state.search, this.state.pageNumber);
     }
   }
 
   loadMoreImages = () => {
     const nextPage = this.state.pageNumber + 1;
-    this.fetchImages(this.state.search, nextPage);
+    this.setState({ pageNumber: nextPage });
   };
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (prevState.search !== this.state.search) {
+  //     this.fetchImages(this.state.search, this.state.pageNumber);
+  //   }
+  // }
+
+  // loadMoreImages = () => {
+  //   const nextPage = this.state.pageNumber + 1;
+  //   this.setState({ pageNumber: nextPage });
+  // };
 
   onSearch = search => {
     this.setState({ search, images: [], pageNumber: 1 });
   };
 
-  openModal = (url, largeImageId) => {
+  openModal = largeImage => {
     this.setState({
       isModalOpen: true,
-      largeImageId: Number(largeImageId),
-      imageUrl: url,
+      largeImage,
     });
-  };
-
-  findImage = () => {
-    const largeImg = this.state.images.find(image => {
-      return image.id === this.state.largeImageId;
-    });
-    return largeImg;
   };
 
   closeModal = () => this.setState({ isModalOpen: false });
 
   render() {
-    const { isLoading, images, isModalOpen, largeImageId } = this.state;
+    const { isLoading, images, isModalOpen, largeImage } = this.state;
+    const hasMoreImages = images.length > 0 && !isLoading;
 
     return (
       <StyledContainer>
         <Searchbar onSubmit={this.onSearch} />
         <ImageGallery openModal={this.openModal} images={images} />
         {isLoading && <Loader />}
-        {images.length > 0 && !isLoading && (
-          <Button loadMoreImages={this.loadMoreImages} />
-        )}
-        {isModalOpen && (
-          <Modal
-            largeImageId={largeImageId}
-            onClose={this.closeModal}
-            url={this.findImage() ? this.findImage().largeImageURL : ''}
-            alt={this.findImage() ? this.findImage().tags : ''}
-          >
-            <img
-              src={this.findImage() ? this.findImage().largeImageURL : ''}
-              alt={this.findImage() ? this.findImage().tags : ''}
-            />
-          </Modal>
-        )}
+        {hasMoreImages && <Button loadMoreImages={this.loadMoreImages} />}
+        {isModalOpen && <Modal url={largeImage} onClose={this.closeModal} />}
       </StyledContainer>
     );
   }

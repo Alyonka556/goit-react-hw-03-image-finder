@@ -27,13 +27,13 @@ export class Modal extends React.Component {
   };
 
   render() {
-    const { url, alt } = this.props;
+    const { url } = this.props;
     return (
       <ModalWrapper onClick={this.handleBackdropClick}>
         <ModalContent>
           <img
             src={url}
-            alt={alt}
+            alt="preview img"
             onError={e => {
               console.error('Image failed to load', e);
             }}

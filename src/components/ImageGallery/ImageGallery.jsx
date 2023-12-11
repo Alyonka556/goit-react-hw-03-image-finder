@@ -7,7 +7,11 @@ export const ImageGallery = ({ images, openModal }) => {
   return (
     <StyledImageGallery>
       {images.map((image, index) => (
-        <ImageGalleryItem openModal={openModal} key={index} image={image} />
+        <ImageGalleryItem
+          openModal={openModal}
+          key={`${image.id}-${index}`}
+          image={image}
+        />
       ))}
     </StyledImageGallery>
   );
